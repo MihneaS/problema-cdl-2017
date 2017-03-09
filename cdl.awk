@@ -1,4 +1,4 @@
-#!/usr/bin/awk -f
+#!/usr/bin/awk 2>/dev/null -f
 
 function get_date(timestamp)
 {
@@ -114,10 +114,11 @@ BEGIN {
             date = get_date(int(timestamp/interval)*interval);
             code_name = date "," endpoint;
             if (!(code_name in stats_total)) {
-                stats_total[code_name] = 0;
+                stats_total[code_name] = 1;
                 stats_succes[code_name] = 0;
+            } else {
+                stats_total[code_name]++;
             }
-            stats_succes[code_name]++;
             if (status_code / 100 == 2 && status_code > 99 && status_code < 1000) {
                 stats_succes++;
             }
@@ -131,7 +132,7 @@ END {
     for (i in stats_total) {
         date = substr(i, 1, 16);
         endpoint = substr(i, 18);
-        printf("%s %d %s %4.1d", date, interval/3600, endpoint, stats_succes / stats_total);
+        printf("%s %d %s %4.1d\n", date, interval/3600, endpoint, stats_succes[i] * 100 / stats_total[i]);
     }
 }
 
