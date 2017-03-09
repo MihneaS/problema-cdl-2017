@@ -1,0 +1,26 @@
+:
+
+function to parse log line
+function to parse log date
+function to parse comnad line date
+function to write statistic date
+
+parse comand line
+
+jump to start
+while end_was_given && time < end
+    parse line
+    if start_loc_tm(de initializat) > interval *1 minut
+        write results
+        resets variables
+    add line
+
+END execute body once more
+
+2017-02-22T18:45
+1234567890123456
+0000000001111111
+
+
+
+
