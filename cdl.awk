@@ -54,8 +54,8 @@ function parse_cld(date)
 BEGIN {
     ji = 1;
     start_tm = 0
-    end_tm = 292277026500
-    interval = 3600
+    end_tm = 292277026600
+    interval = 60
     for (i =0; i < ARGC - 1; i++) {
         if (ARGV[i] == "--start") {
             print ARGV[i+1];
@@ -73,66 +73,69 @@ BEGIN {
 
 
 
-    {
-        # get raw date from line {
-        line = $0;
-        sdate = index(line, "[") + 1;
-        edate = index(line, "]") - 1;
-        lendate = edate - sdate + 1;
-        raw_date = substr(line, sdate, lendate);
-        # }
-        # parse raw date {
-        day = substr(raw_date, 1, 2);
-        month = substr(raw_date, 4, 3);
-        month = month_to_nr(month);
-        year = substr(raw_date, 8, 4);
-        hour = substr(raw_date, 13, 2);
-        minute = substr(raw_date, 16, 2);
-        second = substr(raw_date, 19, 2);
-        GMTH = substr(raw_date, 22, 3);
-        GMTM = substr(raw_date, 22, 1) substr(raw_date, 25, 2);
-        hour += GMTH
-        minute += GMTM #e corect?
-        datespec = year " " month " " day " " hour " " minute " " second;
-        timestamp = mktime(datespec);
-        # }
-        # get endpoint and status code from line {
-        regex = "\"[^\"]*\""
-        if (match(line, regex)) {
-            pattern = substr(line, RSTART, RLENGTH);
-            after = substr(line, RSTART + RLENGTH + 1); #+1 ca scap de un spatiu 
-            regex = "\/[^ ?#]*[ ?#]";
-            if (match(pattern,regex)) {
-                endpoint = substr(pattern, RSTART, RLENGTH - 1); #-1 ca sa elimin [ ?#]
-            }
+{
+    # get raw date from line {
+    line = $0;
+    sdate = index(line, "[") + 1;
+    edate = index(line, "]") - 1;
+    lendate = edate - sdate + 1;
+    raw_date = substr(line, sdate, lendate);
+    # }
+    # parse raw date {
+    day = substr(raw_date, 1, 2);
+    month = substr(raw_date, 4, 3);
+    month = month_to_nr(month);
+    year = substr(raw_date, 8, 4);
+    hour = substr(raw_date, 13, 2);
+    minute = substr(raw_date, 16, 2);
+    second = substr(raw_date, 19, 2);
+    GMTH = substr(raw_date, 22, 3);
+    GMTM = substr(raw_date, 22, 1) substr(raw_date, 25, 2);
+    hour += GMTH
+    minute += GMTM #e corect?
+    datespec = year " " month " " day " " hour " " minute " " second;
+    timestamp = mktime(datespec);
+    # }
+    # get endpoint and status code from line {
+    regex = "\"[^\"]*\""
+    if (match(line, regex)) {
+        pattern = substr(line, RSTART, RLENGTH);
+        after = substr(line, RSTART + RLENGTH + 1); #+1 ca scap de un spatiu 
+        regex = "\/[^ ?#]*[ ?#]";
+        if (match(pattern,regex)) {
+            endpoint = substr(pattern, RSTART, RLENGTH - 1); #-1 ca sa elimin [ ?#]
         }
-        len_status_code = index(after, " ") - 1; #-1 ca sa scpa de un spatiu
-        status_code = substr(after, 1, len_status_code);
-        # }
-        # get stats {
-        if (timestamp > start_tm && timestamp < end_tm) {
-            date = get_date(int(timestamp/interval)*interval);
-            code_name = date "," endpoint;
-            if (!(code_name in stats_total)) {
-                stats_total[code_name] = 1;
-                stats_succes[code_name] = 0;
-            } else {
-                stats_total[code_name]++;
-            }
-            if (status_code / 100 == 2 && status_code > 99 && status_code < 1000) {
-                stats_succes++;
-            }
-        }
-        # }
     }
+    len_status_code = index(after, " ") - 1; #-1 ca sa scpa de un spatiu
+    status_code = substr(after, 1, len_status_code);
+    # }
+    # update stats {
+    #print " "
+    #print "st="start_tm " ts="  timestamp " end=" end_tm;
+    if (timestamp > start_tm && timestamp < end_tm) {
+        date = get_date(int(timestamp/interval)*interval);
+        code_name = date "," endpoint;
+        if (!(code_name in stats_total)) {
+            stats_total[code_name] = 1;
+            stats_succes[code_name] = 0;
+    #        print "initialized " code_name;
+        } else {
+        stats_total[code_name]++;
+        if (int(status_code / 100) == 2 && status_code > 99 && status_code < 1000) {
+            stats_succes[code_name]++;
+        }
+    }
+}
+# }
+}
 
 END {
     PROCINFO["sorted_in"] = "@ind_str_asc"
-    
+
     for (i in stats_total) {
         date = substr(i, 1, 16);
         endpoint = substr(i, 18);
-        printf("%s %d %s %4.1d\n", date, interval/3600, endpoint, stats_succes[i] * 100 / stats_total[i]);
+        printf("%s %d %s %4.1d\n", date, interval/60, endpoint, stats_succes[i] * 100 / stats_total[i]);
     }
 }
 
