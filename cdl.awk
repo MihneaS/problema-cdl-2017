@@ -117,14 +117,14 @@ BEGIN {
             stats_succes[code_name] = 0;
         } else {
         stats_total[code_name]++;
-        #for some reasons status_code > 99 && status code < 1000 was a bug. email only.god@knows.why for more information
-        if (int(status_code / 100) == 2 && status_code >= 100 && status_code <= 999) {
-            stats_succes[code_name]++;
         }
+    }
+    #for some reasons status_code > 99 && status code < 1000 was a bug. email only.god@knows.why for more information
+    if (int(status_code / 100) == 2 && status_code >= 100 && status_code <= 999) {
+        stats_succes[code_name]++;
     }
 }
 # }
-}
 
 END {
     PROCINFO["sorted_in"] = "@ind_str_asc"

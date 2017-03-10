@@ -52,7 +52,7 @@ fi
 
 awk -f cdl.awk tests/test6.log 2>/dev/null >output/test6.out 
 if diff output/test6.out reference/test6.ref >diffs/test6.diff; then
-    scor+=10
+    scor+=1
     echo "test  6 ... ... ... ... ... ... ... ... ... 10"
 else
     echo "test  6 ... ... ... ... ... ... ... ... ...  0"
@@ -60,7 +60,7 @@ fi
 
 awk -f cdl.awk tests/test7.log 2>/dev/null >output/test7.out 
 if diff output/test7.out reference/test7.ref >diffs/test7.diff; then
-    scor+=10
+    scor+=1
     echo "test  7 ... ... ... ... ... ... ... ... ... 10"
 else
     echo "test  7 ... ... ... ... ... ... ... ... ...  0"
@@ -89,5 +89,7 @@ if diff output/test10.out reference/test10.ref >diffs/test10.diff; then
 else
     echo "test 10 ... ... ... ... ... ... ... ... ...  0"
 fi
-
-echo         "Total   ... ... ... ... ... ... ... ... ... $scor/110";
+echo     "______________________________________________"
+echo
+echo     "Total   ... ... ... ... ... ... ... ... ... $scor/110";
+echo Warning: any test that took more than 30s shouldn\'t been given the points!

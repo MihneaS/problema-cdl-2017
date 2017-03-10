@@ -1,0 +1,11 @@
+Usage: 
+  meld                              Start with an empty window
+  meld <file|folder>                Start a version control comparison
+  meld <file> <file> [<file>]       Start a 2- or 3-way file comparison
+  meld <folder> <folder> [<folder>] Start a 2- or 3-way folder comparison
+
+Error: no such option: -f
+
+2016-04-06T20:03 1 /linux-mint.html 50.00
+2016-04-06T20:03 1 /rl-v5.html 50.00
+2016-04-06T20:04 1 /rl-v5.html 50.00
