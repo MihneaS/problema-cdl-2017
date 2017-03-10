@@ -34,7 +34,7 @@ else
     echo "test  3 ... ... ... ... ... ... ... ... ...  0"
 fi
 
-awk -f cdl.awk tests/test4.log 2>/dev/null >output/test4.out 
+awk -f cdl.awk tests/test4.log --interval 2 2>/dev/null >output/test4.out 
 if diff output/test4.out reference/test4.ref >diffs/test4.diff; then
     let "scor += 10"
     echo "test  4 ... ... ... ... ... ... ... ... ... 10"

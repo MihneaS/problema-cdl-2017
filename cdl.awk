@@ -64,7 +64,7 @@ BEGIN {
             end_tm = parse_cld(ARGV[i+1]);
         }
         if (ARGV[i] == "--interval") {
-            interval = ARGV[i + 1] * 3600;
+            interval = ARGV[i + 1] * 60;
         }
     }
 }
