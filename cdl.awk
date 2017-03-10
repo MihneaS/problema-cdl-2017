@@ -58,7 +58,6 @@ BEGIN {
     interval = 60
     for (i =0; i < ARGC - 1; i++) {
         if (ARGV[i] == "--start") {
-            print ARGV[i+1];
             start_tm = parse_cld(ARGV[i+1]);
         }
         if (ARGV[i] == "--end") {
@@ -110,15 +109,12 @@ BEGIN {
     status_code = substr(after, 1, len_status_code);
     # }
     # update stats {
-    print " "
-    print "st="start_tm " ts="  timestamp " end=" end_tm;
     if (timestamp > start_tm && timestamp < end_tm) {
         date = get_date(int(timestamp/interval)*interval); #trunchere reduntanta
         code_name = date "," endpoint;
         if (!(code_name in stats_total)) {
             stats_total[code_name] = 1;
             stats_succes[code_name] = 0;
-            print "initialized " code_name;
         } else {
         stats_total[code_name]++;
         #for some reasons status_code > 99 && status code < 1000 was a bug. email only.god@knows.why for more information
@@ -136,7 +132,7 @@ END {
     for (i in stats_total) {
         date = substr(i, 1, 16);
         endpoint = substr(i, 18);
-        printf("%s %d %s %3.1f\n", date, interval/60, endpoint, stats_succes[i] * 100 / stats_total[i]);
+        printf("%s %d %s %3.2f\n", date, interval/60, endpoint, stats_succes[i] * 100 / stats_total[i]);
     }
 }
 
