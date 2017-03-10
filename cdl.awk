@@ -110,18 +110,19 @@ BEGIN {
     status_code = substr(after, 1, len_status_code);
     # }
     # update stats {
-    #print " "
-    #print "st="start_tm " ts="  timestamp " end=" end_tm;
+    print " "
+    print "st="start_tm " ts="  timestamp " end=" end_tm;
     if (timestamp > start_tm && timestamp < end_tm) {
-        date = get_date(int(timestamp/interval)*interval);
+        date = get_date(int(timestamp/interval)*interval); #trunchere reduntanta
         code_name = date "," endpoint;
         if (!(code_name in stats_total)) {
             stats_total[code_name] = 1;
             stats_succes[code_name] = 0;
-    #        print "initialized " code_name;
+            print "initialized " code_name;
         } else {
         stats_total[code_name]++;
-        if (int(status_code / 100) == 2 && status_code > 99 && status_code < 1000) {
+        #for some reasons status_code > 99 && status code < 1000 was a bug. email only.god@knows.why for more information
+        if (int(status_code / 100) == 2 && status_code >= 100 && status_code <= 999) {
             stats_succes[code_name]++;
         }
     }
