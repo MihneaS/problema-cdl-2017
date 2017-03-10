@@ -136,7 +136,7 @@ END {
     for (i in stats_total) {
         date = substr(i, 1, 16);
         endpoint = substr(i, 18);
-        printf("%s %d %s %4.1d\n", date, interval/60, endpoint, stats_succes[i] * 100 / stats_total[i]);
+        printf("%s %d %s %3.1f\n", date, interval/60, endpoint, stats_succes[i] * 100 / stats_total[i]);
     }
 }
 
