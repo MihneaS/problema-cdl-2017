@@ -1,9 +1,9 @@
 ## Detalii implementare
-se ruleaza pe linux 
-cu gawk fiind awk-ul default 
-
+se ruleaza pe linux <br />
+cu gawk fiind awk-ul default <br />
+<br />
 ## Cum testezi
-1) deschizi un terminal si scrii urmatoarele comenzi 
-2) git clone https://github.com/MihneaS/problema-cdl-2017.git 
-3) cd problema-cdl-2017/ 
-4) ./checker.sh 
+1) deschizi un terminal si scrii urmatoarele comenzi <br />
+2) git clone https://github.com/MihneaS/problema-cdl-2017.git <br />
+3) cd problema-cdl-2017/ <br />
+4) ./checker.sh  <br />
