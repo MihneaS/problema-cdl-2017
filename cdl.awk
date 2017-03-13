@@ -67,6 +67,7 @@ BEGIN {
             interval = ARGV[i + 1] * 60;
         }
     }
+    ARGC = 2; # store ARGC for future use
 }
 
 
