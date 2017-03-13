@@ -89,7 +89,7 @@ BEGIN {
     hour = substr(raw_date, 13, 2);
     minute = substr(raw_date, 16, 2);
     # second = substr(raw_date, 19, 2); # seconds are not ignored
-    second = "00" #seconds are ignored
+    second = "00" # seconds are ignored
     GMTH = substr(raw_date, 22, 3);
     GMTM = substr(raw_date, 22, 1) substr(raw_date, 25, 2);
     hour += GMTH
@@ -97,7 +97,7 @@ BEGIN {
     datespec = year " " month " " day " " hour " " minute " " second;
     timestamp = mktime(datespec);
     # }
-    if (timestamp > start_tm && timestamp < end_tm) {
+    if (timestamp >= start_tm && timestamp <= end_tm) {
         # get endpoint and status code from line {
         regex = "\"[^\"]*\""
         if (match(line, regex)) {
