@@ -1,6 +1,6 @@
 #!/usr/bin/awk 2>/dev/null -f
 
-function get_date(timestamp)
+function timestamp_to_date(timestamp)
 {
     format = "%Y-%m-%dT%H:%M"
     return strftime(format, timestamp);
@@ -37,7 +37,7 @@ function month_to_nr(month)
     return month
 }
 
-function parse_cld(date)
+function date_to_timestamp(date)
 {
     year = substr(date, 1, 4);
     month = substr(date, 6, 2);
@@ -58,16 +58,16 @@ BEGIN {
     interval = 60
     for (i =0; i < ARGC - 1; i++) {
         if (ARGV[i] == "--start") {
-            start_tm = parse_cld(ARGV[i+1]);
+            start_tm = date_to_timestamp(ARGV[i+1]);
         }
         if (ARGV[i] == "--end") {
-            end_tm = parse_cld(ARGV[i+1]);
+            end_tm = date_to_timestamp(ARGV[i+1]);
         }
         if (ARGV[i] == "--interval") {
             interval = ARGV[i + 1] * 60;
         }
     }
-    ARGC = 2; # store ARGC for future use
+    ARGC = 2; # don't treet all arguments as files
 }
 
 
@@ -88,7 +88,8 @@ BEGIN {
     year = substr(raw_date, 8, 4);
     hour = substr(raw_date, 13, 2);
     minute = substr(raw_date, 16, 2);
-    second = substr(raw_date, 19, 2);
+    # second = substr(raw_date, 19, 2); # seconds are not ignored
+    second = "00" #seconds are ignored
     GMTH = substr(raw_date, 22, 3);
     GMTM = substr(raw_date, 22, 1) substr(raw_date, 25, 2);
     hour += GMTH
@@ -96,22 +97,25 @@ BEGIN {
     datespec = year " " month " " day " " hour " " minute " " second;
     timestamp = mktime(datespec);
     # }
-    # get endpoint and status code from line {
-    regex = "\"[^\"]*\""
-    if (match(line, regex)) {
-        pattern = substr(line, RSTART, RLENGTH);
-        after = substr(line, RSTART + RLENGTH + 1); #+1 ca scap de un spatiu 
-        regex = "\/[^ ?#]*[ ?#]";
-        if (match(pattern,regex)) {
-            endpoint = substr(pattern, RSTART, RLENGTH - 1); #-1 ca sa elimin [ ?#]
-        }
-    }
-    len_status_code = index(after, " ") - 1; #-1 ca sa scpa de un spatiu
-    status_code = substr(after, 1, len_status_code);
-    # }
-    # update stats {
     if (timestamp > start_tm && timestamp < end_tm) {
-        date = get_date(int(timestamp/interval)*interval); #trunchere reduntanta
+        # get endpoint and status code from line {
+        regex = "\"[^\"]*\""
+        if (match(line, regex)) {
+            pattern = substr(line, RSTART, RLENGTH);
+            after = substr(line, RSTART + RLENGTH + 1); #+1 ca scap de un spatiu 
+            regex = "\/[^ ?#]*[ ?#]";
+            if (match(pattern,regex)) {
+                endpoint = substr(pattern, RSTART, RLENGTH - 1); #-1 ca sa elimin [ ?#]
+            }
+        }
+        len_status_code = index(after, " ") - 1; #-1 ca sa scpa de un spatiu
+        status_code = substr(after, 1, len_status_code);
+        # }
+        # update stats {
+        if (!(endpoint in last_entry) || timestamp - last_entry[endpoint] >= interval) {
+            last_entry[endpoint] = timestamp;
+        }
+        date = timestamp_to_date(last_entry[endpoint]);
         code_name = date "," endpoint;
         if (!(code_name in stats_total)) {
             stats_total[code_name] = 1;
@@ -119,13 +123,13 @@ BEGIN {
         } else {
         stats_total[code_name]++;
         }
-    }
-    #for some reasons status_code > 99 && status code < 1000 was a bug. email only.god@knows.why for more information
-    if (int(status_code / 100) == 2 && status_code >= 100 && status_code <= 999) {
-        stats_succes[code_name]++;
+        #for some reasons status_code > 99 && status code < 1000 was a bug. email only.god@knows.why for more information
+        if (int(status_code / 100) == 2 && status_code >= 100 && status_code <= 999) {
+            stats_succes[code_name]++;
+        }
+        # }
     }
 }
-# }
 
 END {
     PROCINFO["sorted_in"] = "@ind_str_asc"
