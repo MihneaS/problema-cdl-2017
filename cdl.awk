@@ -6,37 +6,6 @@ function timestamp_to_date(timestamp)
     return strftime(format, timestamp);
 }
 
-
-
-function month_to_nr(month)
-{
-	if (month == "Jan")
-		month = "01"
-	else if (month == "Feb")
-		month = "02"
-	else if (month == "Mar")
-		month = "03"
-	else if (month == "Apr")
-		month = "04"
-	else if (month == "May")
-		month = "05"
-	else if (month == "Jun")
-		month = "06"
-	else if (month == "Jul")
-		month = "07"
-	else if (month == "Aug")
-		month = "08"
-	else if (month == "Sep")
-		month = "09"
-	else if (month == "Oct")
-		month = "10"
-	else if (month == "Nov")
-		month = "11"
-	else if (month == "Dec")
-		month = "12"
-    return month
-}
-
 function date_to_timestamp(date)
 {
     year = substr(date, 1, 4);
@@ -97,6 +66,19 @@ BEGIN {
         }
     }
     ARGC = 2; # only treat ARGV[1] as a file
+    
+    month_to_nr["Jan"] = "01";
+    month_to_nr["Feb"] = "02";
+    month_to_nr["Mar"] = "03";
+    month_to_nr["Apr"] = "04";
+    month_to_nr["May"] = "05";
+    month_to_nr["Jun"] = "06";
+    month_to_nr["Jul"] = "07";
+    month_to_nr["Aug"] = "08";
+    month_to_nr["Sep"] = "09";
+    month_to_nr["Oct"] = "10";
+    month_to_nr["Nov"] = "11";
+    month_to_nr["Dec"] = "12";
 }
 
 
@@ -113,7 +95,7 @@ BEGIN {
     # parse raw date {
     day = substr(raw_date, 1, 2);
     month = substr(raw_date, 4, 3);
-    month = month_to_nr(month);
+    month = month_to_nr[month];
     year = substr(raw_date, 8, 4);
     hour = substr(raw_date, 13, 2);
     minute = substr(raw_date, 16, 2);
