@@ -33,6 +33,17 @@ function add_succes_code(code,    i, X_index) #the extra space before i and X_in
     }
 }
 
+function print_stats()
+{
+    PROCINFO["sorted_in"] = "@ind_str_asc"
+
+    for (i in stats_total) {
+        date = substr(i, 1, 16);
+        endpoint = substr(i, 18);
+        printf("%s %d %s %3.2f\n", date, interval/60, endpoint, stats_succes[i] * 100 / stats_total[i]);
+    }
+}
+
 BEGIN {
     ji = 1;
     start_tm = 0;
@@ -105,52 +116,49 @@ BEGIN {
     datespec = year " " month " " day " " hour " " minute " " second;
     timestamp = mktime(datespec);
     # }
-    if (timestamp >= start_tm && timestamp <= end_tm) {
-        # get endpoint and status code from line {
-        regex = "\"[^\"]*\""
-        if (match(line, regex)) {
-            pattern = substr(line, RSTART, RLENGTH);
-            after = substr(line, RSTART + RLENGTH + 1); #+1 ca scap de un spatiu 
-            regex = "\/[^ ?#]*[ ?#]";
-            if (match(pattern,regex)) {
-                endpoint = substr(pattern, RSTART, RLENGTH - 1); #-1 ca sa elimin [ ?#]
-            }
-        }
-        len_status_code = index(after, " ") - 1; #-1 ca sa scpa de un spatiu
-        status_code = substr(after, 1, len_status_code);
-        # }
-        # update stats {
-        if (!(endpoint in last_entry) || timestamp - last_entry[endpoint] >= interval) {
-            last_entry[endpoint] = timestamp;
-        }
-        date = timestamp_to_date(last_entry[endpoint]);
-        code_name = date "," endpoint;
-        if (!(code_name in stats_total)) {
-            stats_total[code_name] = 1;
-            stats_succes[code_name] = 0;
+    if (timestamp >= start_tm) {
+        if (timestamp > end_tm) {
+            print_stats()
+            exit(0); #end proram with succes
         } else {
-        stats_total[code_name]++;
+            # get endpoint and status code from line {
+            regex = "\"[^\"]*\""
+            if (match(line, regex)) {
+                pattern = substr(line, RSTART, RLENGTH);
+                after = substr(line, RSTART + RLENGTH + 1); #+1 ca scap de un spatiu 
+                regex = "\/[^ ?#]*[ ?#]";
+                if (match(pattern,regex)) {
+                    endpoint = substr(pattern, RSTART, RLENGTH - 1); #-1 ca sa elimin [ ?#]
+                }
+            }
+            len_status_code = index(after, " ") - 1; #-1 ca sa scpa de un spatiu
+            status_code = substr(after, 1, len_status_code);
+            # }
+            # update stats {
+            if (!(endpoint in last_entry) || timestamp - last_entry[endpoint] >= interval) {
+                last_entry[endpoint] = timestamp;
+            }
+            date = timestamp_to_date(last_entry[endpoint]);
+            code_name = date "," endpoint;
+            if (!(code_name in stats_total)) {
+                stats_total[code_name] = 1;
+                stats_succes[code_name] = 0;
+            } else {
+            stats_total[code_name]++;
+            }
+            #for some reasons if(int(status_code / 100) == 2 && status_code > 99 && status_code < 1000) stats_succes[code_name]++; was a bug
+            #but if (int(status_code / 100) == 2 && status_code >= 100 && status_code <= 999) stats_succes[code_name]++; was not
+            #email only.god@knows.why for more information
+            if (status_code in succes_codes_array) {
+                stats_succes[code_name]++;
+            }
+            # }
         }
-        #for some reasons if(int(status_code / 100) == 2 && status_code > 99 && status_code < 1000) stats_succes[code_name]++; was a bug
-        #but if (int(status_code / 100) == 2 && status_code >= 100 && status_code <= 999) stats_succes[code_name]++; was not
-        #email only.god@knows.why for more information
-        if (status_code in succes_codes_array) {
-            stats_succes[code_name]++;
-        }
-        # }
     }
 }
 
-# possible optimization: when start_date > end_tm, print stats and finish the execution
-
 END {
-    PROCINFO["sorted_in"] = "@ind_str_asc"
-
-    for (i in stats_total) {
-        date = substr(i, 1, 16);
-        endpoint = substr(i, 18);
-        printf("%s %d %s %3.2f\n", date, interval/60, endpoint, stats_succes[i] * 100 / stats_total[i]);
-    }
+    print_stats();
 }
 
 
