@@ -51,12 +51,28 @@ function date_to_timestamp(date)
 }
 
 
+function add_succes_code(code,    i, X_index) #the extra space before i and X_index is a coding convention to indicate that they are local variables, not an arguments
+{
+    code = toupper(code); # nu imi mergea codul ca peste tot scria X dar in checker e x, si eu nu facusem ca in checker... e 03:43, ca sa ma ai pe constiinta
+    X_index = index(code, "X");
+    if (X_index) { #if X exists in code
+        for(i = 0; i <= 9; i++) {
+            add_succes_code(substr(code, 1, X_index - 1) i substr(code, X_index + 1));
+            if (length(code) > 3)
+                exit 1;
+        }
+    } else {
+        succes_codes_array[code] = "1";
+    }
+}
+
 BEGIN {
     ji = 1;
-    start_tm = 0
-    end_tm = 292277026600
-    interval = 60
-    for (i =0; i < ARGC - 1; i++) {
+    start_tm = 0;
+    end_tm = 292277026600;
+    interval = 60;
+    succes_codes_string = "2XX";
+    for (i = 0; i < ARGC - 1; i++) {
         if (ARGV[i] == "--start") {
             start_tm = date_to_timestamp(ARGV[i+1]);
         }
@@ -66,8 +82,21 @@ BEGIN {
         if (ARGV[i] == "--interval") {
             interval = ARGV[i + 1] * 60;
         }
+        if (ARGV[i] == "--success") {
+            succes_codes_string = ARGV[i + 1];
+        }
     }
-    ARGC = 2; # don't treet all arguments as files
+    while (succes_codes_string != "") {
+        succes_code_len = index(succes_codes_string, ",") - 1;
+        if (succes_code_len == -1) { # there was no "," left
+            add_succes_code(succes_codes_string);
+            succes_codes_string = "";
+        } else {
+            add_succes_code(substr(succes_codes_string, 1, succes_code_len));
+            succes_codes_string = substr(succes_codes_string, succes_code_len + 2); # ignore "," and start from next digit
+        }
+    }
+    ARGC = 2; # only treat ARGV[1] as a file
 }
 
 
@@ -123,8 +152,10 @@ BEGIN {
         } else {
         stats_total[code_name]++;
         }
-        #for some reasons status_code > 99 && status code < 1000 was a bug. email only.god@knows.why for more information
-        if (int(status_code / 100) == 2 && status_code >= 100 && status_code <= 999) {
+        #for some reasons if(int(status_code / 100) == 2 && status_code > 99 && status_code < 1000) stats_succes[code_name]++; was a bug
+        #but if (int(status_code / 100) == 2 && status_code >= 100 && status_code <= 999) stats_succes[code_name]++; was not
+        #email only.god@knows.why for more information
+        if (status_code in succes_codes_array) {
             stats_succes[code_name]++;
         }
         # }
