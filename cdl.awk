@@ -27,8 +27,6 @@ function add_succes_code(code,    i, X_index) #the extra space before i and X_in
     if (X_index) { #if X exists in code
         for(i = 0; i <= 9; i++) {
             add_succes_code(substr(code, 1, X_index - 1) i substr(code, X_index + 1));
-            if (length(code) > 3)
-                exit 1;
         }
     } else {
         succes_codes_array[code] = "1";
@@ -99,7 +97,6 @@ BEGIN {
     year = substr(raw_date, 8, 4);
     hour = substr(raw_date, 13, 2);
     minute = substr(raw_date, 16, 2);
-    # second = substr(raw_date, 19, 2); # seconds are not ignored
     second = "00" # seconds are ignored
     GMTH = substr(raw_date, 22, 3);
     GMTM = substr(raw_date, 22, 1) substr(raw_date, 25, 2);
@@ -143,6 +140,8 @@ BEGIN {
         # }
     }
 }
+
+# possible optimization: when start_date > end_tm, print stats and finish the execution
 
 END {
     PROCINFO["sorted_in"] = "@ind_str_asc"
